@@ -1,0 +1,13 @@
+.DS_Store
+/.metadata/
+/.recommenders/
+bin/
+.settings/
+*.class
+target/
+build/
+out/
+.idea/
+*.iml
+.vscode/
+.gradle/
