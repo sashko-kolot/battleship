@@ -5,7 +5,7 @@ class Cell {
 	private int row;
 	private boolean ship = false;
 	private boolean hit = false;
-	private boolean missed = false;
+	private boolean miss = false;
 	private boolean blocked = false;
 
 
@@ -33,6 +33,14 @@ class Cell {
 			return ship;
 		}
 		
+		public boolean isHit() {
+			return hit;
+		}
+		
+		public boolean isMiss() {
+			return miss;
+		}
+		
 		public Cell getCell() {
 			return this;
 		}
@@ -46,4 +54,11 @@ class Cell {
 			blocked = true;
 		}
 		
+		public void setHitTrue() {
+			hit = true;
+		}
+		
+		public void setMissTrue() {
+			miss = true;
+		}
 }
