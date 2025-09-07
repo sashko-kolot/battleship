@@ -46,6 +46,12 @@ class CellTest {
 	}
 	
 	@Test
+	void isHiddenTest() {
+		Cell cell = new Cell();
+		assertEquals(true, cell.isHidden());
+	}
+	
+	@Test
 	void setShipTrueTest() {
 		Cell cell = new Cell();
 		cell.setShipTrue();
@@ -71,5 +77,12 @@ class CellTest {
 		Cell cell = new Cell();
 		cell.setMissTrue();
 		assertEquals(true, cell.isMiss());
+	}
+	
+	@Test
+	void setHiddenFalseTest() {
+		Cell cell = new Cell();
+		cell.setHiddenFalse();
+		assertEquals(false, cell.isHidden());
 	}
 }

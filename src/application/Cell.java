@@ -7,6 +7,7 @@ class Cell {
 	private boolean hit = false;
 	private boolean miss = false;
 	private boolean blocked = false;
+	private boolean hidden = true;
 
 
 	Cell() {}
@@ -17,48 +18,56 @@ class Cell {
 		}
 
 // Getters
-		public int getCol() {
+	public int getCol() {
 			return col;
 		}
 
-		public int getRow() {
+	public int getRow() {
 			return row;
 		}
 		
-		public boolean isBlocked() {
+	public boolean isBlocked() {
 			return blocked;
 		}
 		
-		public boolean isShip() {
+	public boolean isShip() {
 			return ship;
 		}
 		
-		public boolean isHit() {
+	public boolean isHit() {
 			return hit;
 		}
 		
-		public boolean isMiss() {
+	public boolean isMiss() {
 			return miss;
 		}
 		
-		public Cell getCell() {
+	public boolean isHidden() {
+			return hidden;
+		}
+		
+	public Cell getCell() {
 			return this;
 		}
 		
 // Setters
-		public void setShipTrue() {
+	public void setShipTrue() {
 			ship = true;
 		}
 		
-		public void setBlockedTrue() {
+	public void setBlockedTrue() {
 			blocked = true;
 		}
 		
-		public void setHitTrue() {
+	public void setHitTrue() {
 			hit = true;
 		}
 		
-		public void setMissTrue() {
+	public void setMissTrue() {
 			miss = true;
+		}
+		
+	public void setHiddenFalse() {
+			hidden = false;
 		}
 }
