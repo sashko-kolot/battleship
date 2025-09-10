@@ -35,8 +35,10 @@ abstract class Player {
 		this.myTurn = myTurn;
 	}
 	
+// Shared methods
 	protected abstract Ship placeShip(Grid grid, int shipSize);
 	
 	public abstract void setFleet();
 	
+	public abstract void shoot(Player player);
 }

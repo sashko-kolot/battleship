@@ -10,13 +10,17 @@ import org.junit.jupiter.api.Test;
 class UtilsTest {
 
 	@Test
-	void getRandomCellTest() {
+	void randomCellSelectorTest() {
 		Grid grid = new Grid();
 		Cell randCell = new Cell();
+		ArrayList<Integer> cellFilter = new ArrayList<>();
 		grid.setGrid();
+		for(int i = 0; i < 100; i ++) {
+			cellFilter.add(i);
+		}
 		
 		for (int i = 0; i < 100; i++) {
-			randCell = Utils.getRandomCell(grid,  0, 10);
+			randCell = Utils.randomCellSelector(grid,  cellFilter);
 			assertTrue((randCell.getCol() >= 0 && randCell.getCol() <= 9) && (randCell.getRow() >= 0 && randCell.getRow() <=9));
 			System.out.println(randCell.getCol() + ", " + randCell.getRow());
 		}
@@ -129,9 +133,12 @@ class UtilsTest {
 		ArrayList<Cell> blockedCells = new ArrayList<>();
 		grid.setGrid();
 		Ship ship = new Ship();
-		ship.getHull().add(Utils.getCellByCoords(grid, 4, 2));
-		ship.getHull().add(Utils.getCellByCoords(grid, 4, 3));
-		ship.getHull().add(Utils.getCellByCoords(grid, 4, 4));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 9, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 5, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 6, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 7, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 8, 6));
 		
 		Utils.blockCells(grid, ship);
 		for (Cell cell : grid.getGrid()) {
@@ -145,6 +152,15 @@ class UtilsTest {
 		for (Cell cell : blockedCells) {
 			assertTrue((cell.getCol() >= 3 && cell.getCol() <= 5) && (cell.getRow() >= 1 && cell.getRow() <= 5));
 		}
+	}
+	
+	@Test
+	void isDirectionTest() {
+		Grid grid = new Grid();
+		grid.setGrid();
+		Utils.getCellByCoords(grid, 8, 3).setBlockedTrue();
+		assertFalse(Utils.isDirection(grid, Utils.getCellByCoords(grid, 8, 4), 4, 'u'));
+		
 	}
 
 }

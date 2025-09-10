@@ -1,24 +1,47 @@
 package application;
 
+import java.util.ArrayList;
+
 class PlayerBot extends Player {
+	
+	private ArrayList<Integer> cellFilter = new ArrayList<>();
+	{
+		resetCellFilter();
+	}
+	
+	// Getters
+	public ArrayList<Integer> getCellFilter() {
+		return cellFilter;
+	}
+	// Setters
+	private void resetCellFilter() {
+		if(cellFilter.size() > 0) {
+			cellFilter.clear();
+		}
+		for(int i = 0; i < 100; i ++) {
+			cellFilter.add(i);
+		}
+	}
 	
 	@Override
 	protected Ship placeShip(Grid grid, int shipSize) {
 		Cell stern;
 		Cell prow;
+		Cell direction = new Cell();
+		direction = null;
 		Ship ship = new Ship();
 	
-	do {	
+	
 		do {
-			stern = Utils.getRandomCell(grid, 0, 9);
-		} while (!stern.isBlocked());
-		prow = Utils.getShipDirection(grid, stern.getCol(), stern.getRow(), shipSize); 
-	} while(prow == null);
-		
+		stern = Utils.randomCellSelector(grid, cellFilter);
+		direction = Utils.getShipDirection(grid, stern.getCol(), stern.getRow(), shipSize);
+		} while (direction == null);
+	
 		stern.setShipTrue();
 		stern.setBlockedTrue();
 		ship.getHull().add(stern);
 		
+		prow = direction;
 		prow.setShipTrue();
 		prow.setBlockedTrue();
 		ship.getHull().add(prow);
@@ -65,20 +88,34 @@ class PlayerBot extends Player {
 			
 			case 1 -> shipSize = 4;
 			
-			case 2 -> shipSize = 4;
+			case 2 -> shipSize = 3;
 			
 			case 3 -> shipSize = 3;
 			
-			case 4 -> shipSize = 3;
-			
-			case 5 -> shipSize = 2;
-			
-			case 6 -> shipSize = 2;
-			
-			case 7 -> shipSize = 2;
+			case 4 -> shipSize = 2;
 			}
 			getFleet().add(placeShip(getShipGrid(), shipSize));
 			Utils.blockCells(getShipGrid(), getFleet().getLast());
-		} while (getFleet().size() <= 7);
+			// debug start
+			System.out.println(getFleet().getLast().getHull().size());
+			/*System.out.println("Blocked cells");
+			for (Cell cell : getShipGrid().getGrid()) {
+				if (cell.isBlocked()) {
+					System.out.println(cell.getCol() + ", " + cell.getRow());
+				}
+				}*/
+			// debug end
+		} while (getFleet().size() < 5);
+		
+		resetCellFilter();
+	}
+	
+	@Override
+	public void shoot(Player opponent) {
+		for (Ship ship : opponent.getFleet()) {
+			if (ship.isDamaged()) {
+				
+			}
+		}
 	}
 }
