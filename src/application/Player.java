@@ -38,7 +38,7 @@ abstract class Player {
 // Shared methods
 	protected abstract Ship placeShip(Grid grid, int shipSize);
 	
-	public abstract void setFleet();
+	public abstract void setFleet(Player opponent);
 	
-	public abstract void shoot(Player player);
+	public abstract void shoot(Player opponent);
 }

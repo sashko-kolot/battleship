@@ -79,7 +79,7 @@ class PlayerBot extends Player {
 	}
 	
 	@Override 
-	public void setFleet() {
+	public void setFleet(Player opponent) {
 		int shipSize = 0;
 		do { 
 			switch (getFleet().size()) {
@@ -106,16 +106,40 @@ class PlayerBot extends Player {
 				}*/
 			// debug end
 		} while (getFleet().size() < 5);
-		
-		resetCellFilter();
+		opponent.getShotGrid().alignGrids(getShipGrid().getGrid());
+		//opponent.getPlayer().shotGrid().getGrid() = getShipGrid().getGrid();
+		//resetCellFilter();
 	}
 	
 	@Override
 	public void shoot(Player opponent) {
-		for (Ship ship : opponent.getFleet()) {
-			if (ship.isDamaged()) {
-				
+		Cell target = new Cell();
+		if(Utils.doesCurrentTargetExist(opponent.getFleet())) {
+			Ship damagedShip = null;
+			for(Ship ship : opponent.getFleet()) {
+				if(ship.isDamaged()) {
+					damagedShip = ship;
+				}
 			}
+				ArrayList<Cell> hitCells = Utils.getHitCells(damagedShip);
+				 if(hitCells.size() > 1) {
+					 target = Utils.destroyCurrentTarget(getShotGrid(), hitCells, Utils.isDamagedShipVertical(hitCells)); 
+				 } else {
+					 
+					 target = Utils.shootNewTargetWithOneHitCell(getShotGrid(), hitCells.get(0));
+				 	}
+		} else {
+			target = Utils.shootNewTarget(getShotGrid(), Utils.getPossibleTargets(getShotGrid()));
+		}
+		
+		if(target.isHit()) {
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHitTrue();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
+		} else {
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setMissTrue();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
+			setMyTurn(false);
+			opponent.setMyTurn(true);
 		}
 	}
 }

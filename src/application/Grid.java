@@ -20,4 +20,8 @@ class Grid {
 				}
 			}
 	}
+	
+	public void alignGrids(ArrayList<Cell> grid) {
+		this.grid = grid;
+	}
 }

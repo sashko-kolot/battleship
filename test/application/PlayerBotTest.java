@@ -31,8 +31,9 @@ class PlayerBotTest {
 	@Test
 	void setFleetTest() {
 		PlayerBot bot = new PlayerBot();
+		PlayerBot opponent = new PlayerBot();
 		bot.getShipGrid().setGrid();
-		bot.setFleet();
+		bot.setFleet(opponent);
 		// debug start
 		System.out.println("Ships");
 		for (Ship ship : bot.getFleet()) {
@@ -65,6 +66,8 @@ class PlayerBotTest {
 				assertTrue((cell.getCol() == ship.getHull().getFirst().getCol()) || (cell.getRow() == ship.getHull().getFirst().getRow()));
 				}
 		}
+		
+		assertEquals(bot.getShipGrid().getGrid(), opponent.getShotGrid().getGrid());
 	}
 
 }
