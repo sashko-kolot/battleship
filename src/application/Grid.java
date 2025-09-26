@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 class Grid {
 	private ArrayList<Cell> grid = new ArrayList<>();
+	public Grid() {
+		setGrid();
+	}
 	
 	
 // Getters
@@ -18,10 +21,8 @@ class Grid {
 				Cell cell = new Cell(col, row);
 	            grid.add(cell);
 				}
-			}
+		}
+		
 	}
 	
-	public void alignGrids(ArrayList<Cell> grid) {
-		this.grid = grid;
-	}
 }

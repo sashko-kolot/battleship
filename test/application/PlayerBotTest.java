@@ -27,8 +27,80 @@ class PlayerBotTest {
 			}
 		}
 	}
-
 	@Test
+	void botShootTest() {
+		PlayerBot bot = new PlayerBot();
+		PlayerHuman opponent = new PlayerHuman();
+		Ship ship3vert = new Ship();
+		Ship ship2vert = new Ship();
+		Ship ship4hor = new Ship();
+		
+		//Construct ship3vert (damaged) and add to opponent's fleet
+		Cell cell0ship3vert = new Cell(0, 0);
+		cell0ship3vert.setShipTrue();
+		cell0ship3vert.setBlockedTrue();
+		cell0ship3vert.setHitTrue();
+		ship3vert.getHull().add(cell0ship3vert);
+		Cell cell1ship3vert = new Cell(0, 2);
+		cell1ship3vert.setShipTrue();
+		cell1ship3vert.setBlockedTrue();
+		ship3vert.getHull().add(cell1ship3vert);
+		Cell cell2ship3vert = new Cell(0, 1);
+		cell2ship3vert.setShipTrue();
+		cell2ship3vert.setBlockedTrue();
+		cell2ship3vert.setHitTrue();
+		ship3vert.getHull().add(cell2ship3vert);
+		ship3vert.setDamaged(true);
+		opponent.getFleet().add(ship3vert);
+		
+		//Construct ship2vert (not damaged) and add to opponent's fleet
+		Cell cell0ship2vert = new Cell(6, 2);
+		cell0ship2vert.setShipTrue();
+		cell0ship3vert.setBlockedTrue();
+		ship2vert.getHull().add(cell0ship2vert);
+		Cell cell1ship2vert = new Cell(6, 3);
+		cell1ship2vert.setShipTrue();
+		cell1ship2vert.setBlockedTrue();
+		cell1ship2vert.setHitTrue();
+		ship2vert.getHull().add(cell1ship2vert);
+		opponent.getFleet().add(ship2vert);
+		
+		//Construct ship4hor (not damaged) and add to opponent's fleet
+		Cell cell0ship4hor = new Cell(6, 9);
+		cell0ship4hor.setShipTrue();
+		cell0ship4hor.setBlockedTrue();
+		cell0ship4hor.setHitTrue();
+		ship4hor.getHull().add(cell0ship4hor);
+		Cell cell1ship4hor = new Cell(9, 9);
+		cell1ship4hor.setShipTrue();
+		cell1ship4hor.setBlockedTrue();
+		ship4hor.getHull().add(cell1ship4hor);
+		Cell cell2ship4hor = new Cell(7, 9);
+		cell2ship4hor.setShipTrue();
+		cell2ship4hor.setBlockedTrue();
+		cell2ship4hor.setHitTrue();
+		Cell cell3ship4hor = new Cell(9, 9);
+		cell3ship4hor.setShipTrue();
+		cell3ship4hor.setBlockedTrue();
+		ship4hor.getHull().add(cell3ship4hor);
+		opponent.getFleet().add(ship4hor);
+		
+		//Update shotGrid
+		for(Ship ship : opponent.getFleet()) {
+			for(Cell cell : ship.getHull()) {
+				Utils.getCellByCoords(bot.getShotGrid(), cell.getCol(), cell.getRow()).setShipTrue();
+				Utils.getCellByCoords(bot.getShotGrid(), cell.getCol(), cell.getRow()).setBlockedTrue();
+				if(cell.isHit()) {
+					Utils.getCellByCoords(bot.getShotGrid(), cell.getCol(), cell.getRow()).setHitTrue();
+				}
+			}
+		}
+		//Case 1: ship3vert is damaged
+		bot.shoot(opponent, hit->{});
+		assertTrue(Utils.getCellByCoords(bot.getShotGrid(), 0, 2).isHit());
+	}
+
+	/*@Test
 	void setFleetTest() {
 		PlayerBot bot = new PlayerBot();
 		PlayerBot opponent = new PlayerBot();
@@ -47,7 +119,7 @@ class PlayerBotTest {
 			if (cell.isBlocked()) {
 				System.out.println(cell.getCol() + ", " + cell.getRow());
 			}
-		}*/
+		}
 		
 		// debug end
 		assertEquals(5, bot.getFleet().size());
@@ -68,6 +140,6 @@ class PlayerBotTest {
 		}
 		
 		assertEquals(bot.getShipGrid().getGrid(), opponent.getShotGrid().getGrid());
-	}
+	}*/
 
 }

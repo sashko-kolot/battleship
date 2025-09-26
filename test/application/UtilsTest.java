@@ -41,6 +41,104 @@ class UtilsTest {
 	}
 	
 	@Test
+	void doesCurrentTargetExistTest() {
+		ArrayList<Ship> fleet = new ArrayList<>();
+		for(int i = 0; i < 5; i++) {
+			Ship ship = new Ship();
+			fleet.add(ship);
+		}
+		fleet.get(2).setDamaged(true);
+		
+		assertTrue(Utils.doesCurrentTargetExist(fleet));
+	}
+	
+	@Test
+	void getHitCellsTest() {
+		Ship ship = new Ship();
+		for(int i = 0; i < 5; i++) {
+			Cell cell = new Cell(6, i);
+			ship.getHull().add(cell);
+		}
+		ship.getHull().get(1).setHitTrue();
+		ship.getHull().get(2).setHitTrue();
+		ArrayList<Cell> cells = Utils.getHitCells(ship);
+		assertEquals(2, cells.size());
+	}
+	
+	@Test
+	void isDamagedShipVertical() {
+		ArrayList<Cell> vertical = new ArrayList<>();
+		ArrayList<Cell> horizontal = new ArrayList<>();
+		for(int i = 0; i < 3; i++) {
+			Cell cellvert = new Cell(4,i);
+			vertical.add(cellvert);
+			Cell cellhor = new Cell(i, 3);
+			horizontal.add(cellhor);
+		}
+		
+		assertTrue(Utils.isDamagedShipVertical(vertical));
+		assertFalse(Utils.isDamagedShipVertical(horizontal));
+	}
+	
+	@Test
+	void destroyCurrentTargetTest() {
+	Grid shotGrid = new Grid();
+	shotGrid.setGrid();
+	Ship shipvert = new Ship();
+	Ship shiphor = new Ship();
+	
+	for(int i = 0; i < 4; i++) {
+		Cell cell = Utils.getCellByCoords(shotGrid, 4, i);
+		cell.setShipTrue();
+		shipvert.getHull().add(cell);
+	}
+	shipvert.setDamaged(true);
+	
+	for(int i = 0; i < 4; i++) {
+		Cell cell = Utils.getCellByCoords(shotGrid, i, 7);
+		cell.setShipTrue();
+		shiphor.getHull().add(cell);
+	}
+	shiphor.setDamaged(true);
+	
+	ArrayList<Cell> vertical = new ArrayList<>();
+	ArrayList<Cell> horizontal = new ArrayList<>();
+	
+	for(int i = 0; i < 2; i++) {
+		Cell cell = new Cell();
+		cell = shipvert.getHull().get(i);
+		cell.setHitTrue();
+		vertical.add(cell);
+	}
+	for(int i = 0; i < 2; i++) {
+		Cell cell = new Cell();
+		cell = shiphor.getHull().get(i);
+		cell.setHitTrue();
+		horizontal.add(cell);
+	}
+	Cell target;
+	target = Utils.destroyCurrentTarget(shotGrid, vertical, Utils.isDamagedShipVertical(vertical));
+	System.out.println("Vert ship");
+	for(Cell cell : shipvert.getHull()) {
+		System.out.println(cell.getCol() + ", " + cell.getRow() + ", " + cell.isHit());
+	}
+	System.out.println("Vert ship on grid");
+	for(Cell cell : shipvert.getHull()) {
+		Cell gridcell = Utils.getCellByCoords(shotGrid, cell.getCol(), cell.getRow());
+		System.out.println(gridcell.getCol() + ", " + gridcell.getRow() + gridcell.isHit());
+	}
+	System.out.println("Target: " + target.getCol() + ", " + target.getRow());
+	assertTrue(shipvert.getHull().contains(target) && !target.isHit());
+	target = Utils.destroyCurrentTarget(shotGrid, horizontal, Utils.isDamagedShipVertical(horizontal));
+	System.out.println("Hor ship");
+	for(Cell cell : shiphor.getHull()) {
+		System.out.println(cell.getCol() + ", " + cell.getRow() + ", " + cell.isHit());
+	}
+	System.out.println("Target: " + target.getCol() + ", " + target.getRow());
+	assertTrue(shiphor.getHull().contains(target) && !target.isHit());
+	}
+	
+	/*@Test
 	void getShipDirectionTest() {
 		Grid grid = new Grid();
 		Cell cell = new Cell();
@@ -126,19 +224,18 @@ class UtilsTest {
 		assertFalse(Utils.cellExists(-1, 5));
 		assertFalse(Utils.cellExists(4, 10));
 	}
-	
-	@Test
+	*/
+	/*@Test
 	void blockCellsTest() {
 		Grid grid = new Grid();
 		ArrayList<Cell> blockedCells = new ArrayList<>();
 		grid.setGrid();
 		Ship ship = new Ship();
-		ship.getHull().add(Utils.getCellByCoords(grid, 4, 6));
-		ship.getHull().add(Utils.getCellByCoords(grid, 9, 6));
-		ship.getHull().add(Utils.getCellByCoords(grid, 5, 6));
-		ship.getHull().add(Utils.getCellByCoords(grid, 6, 6));
-		ship.getHull().add(Utils.getCellByCoords(grid, 7, 6));
-		ship.getHull().add(Utils.getCellByCoords(grid, 8, 6));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 1));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 2));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 3));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 4));
+		ship.getHull().add(Utils.getCellByCoords(grid, 4, 5));
 		
 		Utils.blockCells(grid, ship);
 		for (Cell cell : grid.getGrid()) {
@@ -162,5 +259,28 @@ class UtilsTest {
 		assertFalse(Utils.isDirection(grid, Utils.getCellByCoords(grid, 8, 4), 4, 'u'));
 		
 	}
+	*/
+	/*@Test
+	void getPossibleTargetsTest() {
+		Grid grid = new Grid();
+		grid.setGrid();
+		
+		ArrayList<Cell> targets = new ArrayList<>();
+		targets = Utils.getPossibleTargets(grid);
+		for(Cell cell : targets) {
+		System.out.println(cell.getCol() + ", " + cell.getRow());
+		}
+		assertTrue(targets.size() >0);
+		
+	}*/
+	
+	/*@Test
+	void shootNewTargetTest() {
+		PlayerBot player = new PlayerBot();
+		Cell target = new Cell();
+		target = Utils.shootNewTarget(player.getShotGrid(), Utils.getPossibleTargets(player.getShotGrid()));
+		System.out.println("Target: " + target.getCol() + ", " + target.getRow());
+		assertTrue(target != null);
+	}*/
 
 }

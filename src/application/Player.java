@@ -1,13 +1,13 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 abstract class Player {
 	
 	private Grid shipGrid = new Grid();
 	private Grid shotGrid = new Grid();
 	private ArrayList<Ship> fleet = new ArrayList<>();
-	private boolean myTurn = false;
 	
 // Getters
 	public Grid getShipGrid() {
@@ -22,23 +22,14 @@ abstract class Player {
 		return fleet;
 	}
 	
-	public boolean isMyTurn() {
-		return myTurn;
-	}
-	
 	public Player getPlayer() {
 		return this;
-	}
-	
-// Setters
-	public void setMyTurn(boolean myTurn) {
-		this.myTurn = myTurn;
 	}
 	
 // Shared methods
 	protected abstract Ship placeShip(Grid grid, int shipSize);
 	
-	public abstract void setFleet(Player opponent);
+	public abstract void setFleet(Player opponent, Runnable onComplete);
 	
-	public abstract void shoot(Player opponent);
+	public abstract void shoot(Player opponent, Consumer<Boolean> resultCallback);
 }

@@ -4,17 +4,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-class Utils {
+final class Utils {
+	
+	private Utils() {} // To prevent instantiation
+	
 	public static Cell randomCellSelector(Grid grid, ArrayList<Integer> cellFilter) {
-		int cellIndex;
+		Integer cellIndex = null;
 		Cell randCell = new Cell();
 		do {
 			int min = 0;
 			int max = cellFilter.size() - 1;
 			cellIndex = (min +(int)(Math.random() * ((max-min) + 1)));
-			cellFilter.remove(cellIndex);
 			
-			} while (grid.getGrid().get(cellIndex).isBlocked());
+			if(grid.getGrid().get(cellIndex).isBlocked()) {
+			cellFilter.remove(cellIndex);
+			cellIndex = null;
+				}
+			
+			} while (cellIndex == null);
 			randCell = grid.getGrid().get(cellIndex);
 			
 			return randCell;
@@ -30,7 +37,7 @@ class Utils {
 		return cell;
 	}
 	 
-	public static Cell getShipDirection(Grid grid, int col, int row, int size) {
+	public static ArrayList<Cell> getShipDirections(Grid grid, int col, int row, int size) {
 		Cell upCell;
 		Cell downCell;
 		Cell leftCell;
@@ -75,17 +82,14 @@ class Utils {
 				}	
 			}
 		}
-		
+		return directions;
+	}
+	
+	public static Cell selectRandomDirection(ArrayList<Cell> directions) {
 		if(directions.size() > 1) {
 			int min = 0;
 			int max = directions.size() - 1;
-			
-			//debug start
-			System.out.println("Directions");
-			for (Cell cell : directions) {	
-			System.out.println(cell.getCol() + ", " + cell.getRow());
-			}
-			//debug end 
+
 		return directions.get((min + (int)(Math.random() * ((max - min) + 1))));
 		} 
 		else if (directions.size() == 1){
@@ -95,7 +99,7 @@ class Utils {
 		}
 	}
 	
-	/*private*/ static boolean isDirection(Grid grid, Cell cell, int size, char direction) {
+	private static boolean isDirection(Grid grid, Cell cell, int size, char direction) {
 		if (size - 2 > 0) {
 		switch (direction) {
 		case 'u':
@@ -103,9 +107,6 @@ class Utils {
 				if (getCellByCoords(grid, cell.getCol(), cell.getRow() + i).isBlocked()) {
 					return false;
 				}
-				// debug start
-				System.out.println(cell.getCol() + ", " + (cell.getRow() + i));
-				//debug end
 			}
 			return true;
 			
@@ -143,10 +144,10 @@ class Utils {
 
 	public static void blockCells(Grid grid, Ship ship) {
 		ArrayList<Cell> hull = ship.getHull();
-		int col1 = hull.getFirst().getCol();
-		int col2 = hull.getLast().getCol();
-		int row1 = hull.getFirst().getRow();
-		int row2 = hull.getLast().getRow();
+		int col1 = hull.get(0).getCol();
+		int col2 = hull.get(1).getCol();
+		int row1 = hull.get(0).getRow();
+		int row2 = hull.get(1).getRow();
 		
 		if(col1 == col2) {
 			if(row1 > row2) {
@@ -161,7 +162,7 @@ class Utils {
 				if(cellExists(col1, row1 + 1)) {
 						getCellByCoords(grid, col1, row1 + 1).setBlockedTrue();
 				}
-				if(cellExists(col1, row1 - 1)) {
+				if(cellExists(col1, row2 - 1)) {
 						getCellByCoords(grid, col2, row2 - 1).setBlockedTrue();
 				}
 				 
@@ -237,8 +238,8 @@ class Utils {
 	public static Cell shootNewTarget(Grid grid, ArrayList<Cell> possibleTargets) {
 		Cell cell = new Cell();
 		cell = possibleTargets.get(generateRandomInt(0, possibleTargets.size() - 1));
-		updateTargetCell(cell);
-		return cell;
+		updateTargetCell(grid, cell);
+		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
 	}
 	
 	public static Cell shootNewTargetWithOneHitCell(Grid grid, Cell hitCell) {
@@ -266,12 +267,14 @@ class Utils {
 		
 		if(possibleTargets.size() > 1) {
 		cell = possibleTargets.get(generateRandomInt(0, possibleTargets.size() - 1));
+		updateTargetCell(grid, cell);
+		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
 		} else {
 			cell = possibleTargets.get(0);
 		}
-		updateTargetCell(cell);
+		updateTargetCell(grid, cell);
 		
-		return cell;
+		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
 	}
 	
 	public static ArrayList<Cell> getPossibleTargets(Grid grid) {
@@ -336,8 +339,8 @@ class Utils {
 	}
 	
 	public static Cell destroyCurrentTarget(Grid grid, ArrayList<Cell> hitCells, boolean shipVertical) {
-		Cell targetCell1 = new Cell();
-		Cell targetCell2 = new Cell();
+		Cell targetCell1 = null;
+		Cell targetCell2 = null;
 		
 		if(shipVertical) {
 			int[] cellRows = new int[hitCells.size()];
@@ -346,9 +349,13 @@ class Utils {
 			}
 			int maxRow = Arrays.stream(cellRows).max().getAsInt();
 			int minRow = Arrays.stream(cellRows).min().getAsInt();
-			targetCell1 = getCellByCoords(grid, hitCells.get(0).getCol(), maxRow + 1);
-			targetCell2 = getCellByCoords(grid, hitCells.get(0).getCol(), minRow - 1);
-			return aimFire(targetCell1, targetCell2);
+				if(cellExists(hitCells.get(0).getCol(), maxRow + 1)) {
+				targetCell1 = getCellByCoords(grid, hitCells.get(0).getCol(), maxRow + 1);
+				}
+				if(cellExists(hitCells.get(0).getCol(), minRow - 1)) {
+					targetCell2 = getCellByCoords(grid, hitCells.get(0).getCol(), minRow - 1);
+				}
+			return aimFire(grid,targetCell1, targetCell2);
 			} else {
 				int[] cellCols = new int[hitCells.size()];
 				for(int i = 0; i < hitCells.size(); i++) {
@@ -356,9 +363,13 @@ class Utils {
 			}
 			int maxCol = Arrays.stream(cellCols).max().getAsInt();
 			int minCol = Arrays.stream(cellCols).min().getAsInt();
-			targetCell1 = getCellByCoords(grid, hitCells.get(0).getRow(), maxCol + 1);
-			targetCell2 = getCellByCoords(grid, hitCells.get(0).getRow(), minCol - 1);
-			return aimFire(targetCell1, targetCell2);
+				if(cellExists(maxCol + 1, hitCells.get(0).getRow())) {
+					targetCell1 = getCellByCoords(grid, maxCol + 1, hitCells.get(0).getRow());
+				}
+				if(cellExists(minCol - 1, hitCells.get(0).getRow())) {
+					targetCell2 = getCellByCoords(grid, minCol - 1, hitCells.get(0).getRow());
+				}
+			return aimFire(grid, targetCell1, targetCell2);
 		}
 	}
 	
@@ -367,34 +378,66 @@ class Utils {
 		
 	}
 	
-	public static void updateTargetCell(Cell targetCell) {
-		if(targetCell.isShip()) {
-			targetCell.setHiddenFalse();
-			targetCell.setHitTrue();
+	public static void updateTargetCell(Grid shotGrid, Cell targetCell) {
+		if(Utils.getCellByCoords(shotGrid, targetCell.getCol(), targetCell.getRow()).isShip()) {
+			Utils.getCellByCoords(shotGrid, targetCell.getCol(), targetCell.getRow()).setHiddenFalse();
+			Utils.getCellByCoords(shotGrid, targetCell.getCol(), targetCell.getRow()).setHitTrue();
 		} else {
-			targetCell.setHiddenFalse();
-			targetCell.setMissTrue();
+			Utils.getCellByCoords(shotGrid, targetCell.getCol(), targetCell.getRow()).setHiddenFalse();
+			Utils.getCellByCoords(shotGrid, targetCell.getCol(), targetCell.getRow()).setMissTrue();
 		}
 	}
 	
-	public static Cell aimFire(Cell targetCell1, Cell targetCell2) {
+	public static Cell aimFire(Grid shotGrid, Cell targetCell1, Cell targetCell2) {
+		if(targetCell1 == null) {
+			updateTargetCell(shotGrid, targetCell2);
+			return Utils.getCellByCoords(shotGrid, targetCell2.getCol(), targetCell2.getRow());
+		}
+		if(targetCell2 == null) {
+			updateTargetCell(shotGrid, targetCell1);
+			return Utils.getCellByCoords(shotGrid, targetCell1.getCol(), targetCell1.getRow());
+		}
 		if(targetCell1.isHidden() && targetCell2.isHidden()) {
 			switch(generateRandomInt(0, 1)) {
-			case 0: updateTargetCell(targetCell1);
-			return targetCell1;
+			case 0: updateTargetCell(shotGrid,targetCell1);
+			return Utils.getCellByCoords(shotGrid, targetCell1.getCol(), targetCell1.getRow());
 			
-			case 1: updateTargetCell(targetCell2);
-			return targetCell2;	
+			case 1: updateTargetCell(shotGrid,targetCell2);
+			return Utils.getCellByCoords(shotGrid, targetCell2.getCol(), targetCell2.getRow());
 			}
 		} 
 		else if(targetCell1.isHidden()) {
-			updateTargetCell(targetCell1);
-			return targetCell1;
+			updateTargetCell(shotGrid, targetCell1);
+			return Utils.getCellByCoords(shotGrid, targetCell1.getCol(), targetCell1.getRow());
 		}
 		else if(targetCell2.isHidden()) {
-			updateTargetCell(targetCell2);
-			return targetCell2;
+			updateTargetCell(shotGrid, targetCell2);
+			return Utils.getCellByCoords(shotGrid, targetCell2.getCol(), targetCell2.getRow());
 		}
 		return null; // impossible option
 	}
+	
+	public static Ship getDamagedShipByHitCell(ArrayList<Ship> fleet, Cell hitCell) {
+		for(Ship ship : fleet) {
+			for(Cell cell : ship.getHull()) {
+				if(cell.getCol() == hitCell.getCol() && cell.getRow() == hitCell.getRow()) {
+					return ship;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static void updateOpponentShotGrid(Grid grid, Player opponent) {
+		Grid shotGrid = opponent.getShotGrid();
+		for(Cell cell : grid.getGrid()) {
+			if(cell.isShip()) {
+				Utils.getCellByCoords(shotGrid, cell.getCol(), cell.getRow()).setShipTrue();
+				Utils.getCellByCoords(shotGrid, cell.getCol(), cell.getRow()).setBlockedTrue();
+				}
+			else if(cell.isBlocked() && !cell.isShip()) {
+				Utils.getCellByCoords(shotGrid, cell.getCol(), cell.getRow()).setBlockedTrue();
+				}
+			}
+		}
 }
