@@ -82,7 +82,7 @@ class PlayerHuman extends Player {
 	    		}
 	            ship.setHitPointCounter(ship.getHull().size());
 	            callback.accept(ship);
-	            ViewController.hideShipDirections(directionsRef.get());
+	            Platform.runLater(() -> {ViewController.hideShipDirections(directionsRef.get());});
 			}
 		});
 	}
@@ -112,7 +112,7 @@ class PlayerHuman extends Player {
 	    placeShip(getShipGrid(), shipSize, ship -> {
 	        getFleet().add(ship);
 	        Utils.blockCells(getShipGrid(), ship);
-	        ViewController.updateShipGridPane(getShipGrid());
+	        Platform.runLater(() -> {ViewController.updateShipGridPane(getShipGrid());});
 
 	        placeNextShip(opponent, index + 1, onComplete);
 	    });
@@ -131,6 +131,7 @@ class PlayerHuman extends Player {
 				
 				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHitTrue();
 				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHiddenFalse();
+				Utils.excludeAdjacentCells(getShotGrid(), opponent, Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell),clickedCell);
 				if(!Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell).isDamaged()) {
 					Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell).setDamaged(true);
 				}
@@ -146,9 +147,9 @@ class PlayerHuman extends Player {
 				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHiddenFalse();
 				}
 			 clickedCell.setHiddenFalse();
-			 ViewController.updateShotGridPane(getShotGrid());
+			 Platform.runLater(() -> {ViewController.updateShotGridPane(getShotGrid());});
 			 boolean hit = clickedCell.isHit();
-			 System.out.println("DEBUG: Callback hit = " + hit);//debug
+			 //System.out.println("DEBUG: Callback hit = " + hit);//debug
 			 resultCallback.accept(hit);
 		});
 	}

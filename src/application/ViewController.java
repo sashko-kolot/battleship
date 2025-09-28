@@ -209,4 +209,18 @@ final class ViewController {
     		}
     	}
     }
+    
+    @SuppressWarnings("unchecked")
+    public static void deactivateShotGrid() {
+    	for(Node node : view.getShotGridPane().getChildren()) {
+    		if(node instanceof StackPane stackPane) {
+	    		if(!stackPane.getChildren().isEmpty() && stackPane.getChildren().get(0) instanceof Rectangle rect) {
+	    		Object obj = rect.getProperties().get("handler");
+	    			if(obj instanceof EventHandler<?> handler) {
+	    				rect.removeEventHandler(MouseEvent.ANY, (EventHandler<MouseEvent>) handler);
+	    			}
+	    		}
+    		}
+    	}
+    }
 }

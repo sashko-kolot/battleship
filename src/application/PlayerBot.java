@@ -2,10 +2,7 @@ package application;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
-
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.util.Duration;
 
 class PlayerBot extends Player {
 	
@@ -18,13 +15,6 @@ class PlayerBot extends Player {
 		return cellFilter;
 	}
 	// Setters
-	/*private void resetCellFilter() {
-		cellFilter.clear();
-		for(int i = 0; i < 100; i ++) {
-			cellFilter.add(i);
-		}
-	}*/
-	
 	private ArrayList<Integer> generateCellFilter() {
 		ArrayList<Integer> cellFilter= new ArrayList<>();
 		for(Integer i = 0; i < 100; i ++) {
@@ -117,8 +107,6 @@ class PlayerBot extends Player {
 	public void shoot(Player opponent, Consumer<Boolean> resultCallback) {
 		Cell target = new Cell();
 		Ship damagedShip = new Ship();
-		//debug
-		System.out.println("Current Target: " + Utils.doesCurrentTargetExist(opponent.getFleet()));
 		
 		if(Utils.doesCurrentTargetExist(opponent.getFleet())) {
 			for(Ship ship : opponent.getFleet()) {
@@ -126,12 +114,6 @@ class PlayerBot extends Player {
 					damagedShip = ship;
 				}
 			}
-			//debug
-			System.out.println("Damaged ship: ");
-			for(Cell cell : damagedShip.getHull()) {
-				System.out.print(cell.getCol() + ":" + cell.getRow() + " ");
-			}
-			
 				ArrayList<Cell> hitCells = Utils.getHitCells(damagedShip);
 				 if(hitCells.size() > 1) {
 					 target = Utils.destroyCurrentTarget(getShotGrid(), hitCells, Utils.isDamagedShipVertical(hitCells)); 
@@ -149,15 +131,14 @@ class PlayerBot extends Player {
 				damagedShip = Utils.getDamagedShipByHitCell(opponent.getFleet(), target);
 				damagedShip.setDamaged(true);
 				damagedShip.decrementHitPointCounter();
-			} else {
-				damagedShip.decrementHitPointCounter();
-				//debug
-				System.out.println("Damaged ship size: " + damagedShip.getHull().size());
-				
-				if(damagedShip.getHitPointCounter() == 0) {
-					damagedShip.setDamaged(false);
-					damagedShip.setDestroyedTrue();
-				}
+				Utils.excludeAdjacentCells(getShotGrid(), opponent, damagedShip, target);
+				} else {	
+					damagedShip.decrementHitPointCounter();
+					Utils.excludeAdjacentCells(getShotGrid(), opponent, damagedShip, target);
+					if(damagedShip.getHitPointCounter() == 0) {
+						damagedShip.setDamaged(false);
+						damagedShip.setDestroyedTrue();
+					}
 			}
 					
 		} else {
@@ -165,8 +146,6 @@ class PlayerBot extends Player {
 			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
 			}
 		Platform.runLater(()-> ViewController.updateShipGridPane(opponent.getShipGrid()));
-		System.out.println("DEBUG: Callback hit = " + hit + "Target: " + target.getCol() + ", " + target.getRow());//debug
-		 
 		resultCallback.accept(hit);
 	}
 }

@@ -284,16 +284,16 @@ final class Utils {
 		ArrayList<Cell> targetZone4 = new ArrayList<>();;
 		
 		for(Cell cell : grid.getGrid()) {
-			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 0 && cell.getRow() >= 4) && cell.isHidden()) {
+			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 0 && cell.getRow() <= 4) && cell.isHidden()) {
 				targetZone1.add(cell);
 			}
-			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 0 && cell.getRow() >= 4) && cell.isHidden()) {
+			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 0 && cell.getRow() <= 4) && cell.isHidden()) {
 				targetZone2.add(cell);
 			}
-			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 5 && cell.getRow() >= 9) && cell.isHidden()) {
+			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 5 && cell.getRow() <= 9) && cell.isHidden()) {
 				targetZone3.add(cell);
 			}
-			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 5 && cell.getRow() >= 9) && cell.isHidden()) {
+			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 5 && cell.getRow() <= 9) && cell.isHidden()) {
 				targetZone4.add(cell);
 			}
 		}
@@ -306,6 +306,7 @@ final class Utils {
 		
 		int[] targetZoneSizes = {targetZone1.size(), targetZone2.size(), targetZone3.size(), targetZone4.size()};
 		int maxTargetZone = Arrays.stream(targetZoneSizes).max().getAsInt();
+		
 		
 		ArrayList<String> maxKeys = new ArrayList<>();
 		for (HashMap.Entry<String, ArrayList<Cell>> entry : targetZones.entrySet()) {
@@ -375,7 +376,6 @@ final class Utils {
 	
 	public static int generateRandomInt(int min, int max) {
 		return (min + (int)(Math.random() * ((max - min) + 1)));
-		
 	}
 	
 	public static void updateTargetCell(Grid shotGrid, Cell targetCell) {
@@ -438,6 +438,114 @@ final class Utils {
 			else if(cell.isBlocked() && !cell.isShip()) {
 				Utils.getCellByCoords(shotGrid, cell.getCol(), cell.getRow()).setBlockedTrue();
 				}
+			}
+		}
+	
+	public static void excludeAdjacentCells(Grid shotGrid, Player opponent, Ship damagedShip, Cell target) {
+			if(Utils.cellExists(target.getCol() - 1, target.getRow() - 1)) {
+				Utils.getCellByCoords(shotGrid, target.getCol() - 1, target.getRow() - 1).setMissTrue();
+				Utils.getCellByCoords(shotGrid, target.getCol() - 1, target.getRow() - 1).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() - 1, target.getRow() - 1).setMissTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() - 1, target.getRow() - 1).setHiddenFalse();
+			}
+			
+			if(Utils.cellExists(target.getCol() - 1, target.getRow() + 1)) {
+				Utils.getCellByCoords(shotGrid, target.getCol() - 1, target.getRow() + 1).setMissTrue();
+				Utils.getCellByCoords(shotGrid, target.getCol() - 1, target.getRow() + 1).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() - 1, target.getRow() + 1).setMissTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() - 1, target.getRow() + 1).setHiddenFalse();
+			}
+			
+			if(Utils.cellExists(target.getCol() + 1, target.getRow() - 1)) {
+				Utils.getCellByCoords(shotGrid, target.getCol() + 1, target.getRow() - 1).setMissTrue();
+				Utils.getCellByCoords(shotGrid, target.getCol() + 1, target.getRow() - 1).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() + 1, target.getRow() - 1).setMissTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() + 1, target.getRow() - 1).setHiddenFalse();
+			}
+			
+			if(Utils.cellExists(target.getCol() + 1, target.getRow() + 1)) {
+				Utils.getCellByCoords(shotGrid, target.getCol() + 1, target.getRow() + 1).setMissTrue();
+				Utils.getCellByCoords(shotGrid, target.getCol() + 1, target.getRow() + 1).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() + 1, target.getRow() + 1).setMissTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), target.getCol() + 1, target.getRow() + 1).setHiddenFalse();
+			}
+			
+			if(Utils.isLastHit(opponent, target)) {
+				if(Utils.isDamagedShipVertical(damagedShip.getHull())) {
+					if(damagedShip.getHull().get(0).getRow() > damagedShip.getHull().get(1).getRow()) {
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() + 1).setMissTrue();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() + 1).setHiddenFalse();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() - 1).setMissTrue();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() - 1).setHiddenFalse();
+						
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() + 1).setMissTrue();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() + 1).setHiddenFalse();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() - 1).setMissTrue();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() - 1).setHiddenFalse();
+					} else {
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() + 1).setMissTrue();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() + 1).setHiddenFalse();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() - 1).setMissTrue();
+						Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() - 1).setHiddenFalse();
+						
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() + 1).setMissTrue();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol(), damagedShip.getHull().get(1).getRow() + 1).setHiddenFalse();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() - 1).setMissTrue();
+						Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol(), damagedShip.getHull().get(0).getRow() - 1).setHiddenFalse();
+						
+					}
+			} else {
+				
+				if(damagedShip.getHull().get(0).getCol() > damagedShip.getHull().get(1).getCol()) {
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol() + 1, damagedShip.getHull().get(0).getRow()).setMissTrue();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol() + 1, damagedShip.getHull().get(0).getRow()).setHiddenFalse();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol() - 1, damagedShip.getHull().get(1).getRow()).setMissTrue();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol() - 1, damagedShip.getHull().get(1).getRow()).setHiddenFalse();
+					
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol() + 1, damagedShip.getHull().get(0).getRow()).setMissTrue();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol() + 1, damagedShip.getHull().get(0).getRow()).setHiddenFalse();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol() - 1, damagedShip.getHull().get(1).getRow()).setMissTrue();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol() - 1, damagedShip.getHull().get(1).getRow()).setHiddenFalse();
+				
+				} else {
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol() + 1, damagedShip.getHull().get(1).getRow()).setMissTrue();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(1).getCol() + 1, damagedShip.getHull().get(1).getRow()).setHiddenFalse();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol() - 1, damagedShip.getHull().get(0).getRow()).setMissTrue();
+					Utils.getCellByCoords(shotGrid, damagedShip.getHull().get(0).getCol() - 1, damagedShip.getHull().get(0).getRow()).setHiddenFalse();
+					
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol() + 1, damagedShip.getHull().get(1).getRow()).setMissTrue();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(1).getCol() + 1, damagedShip.getHull().get(1).getRow()).setHiddenFalse();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol() - 1, damagedShip.getHull().get(0).getRow()).setMissTrue();
+					Utils.getCellByCoords(opponent.getShipGrid(), damagedShip.getHull().get(0).getCol() - 1, damagedShip.getHull().get(0).getRow()).setHiddenFalse();
+	
+				}
+				}
+			}
+		}
+	
+		/*public static boolean isFirstHit(Player opponent, Cell hitCell) {
+			Ship ship = Utils.getDamagedShipByHitCell(opponent.getFleet(), hitCell);
+			int hitCounter = 0;
+			for(Cell cell : ship.getHull()) {
+				if(cell.isHit()) hitCounter++;
+			}
+			if(hitCounter == 1) {
+				return true;
+			} else {
+				return false;
+			}
+		}*/
+		
+		public static boolean isLastHit(Player opponent, Cell hitCell) {
+			Ship ship = Utils.getDamagedShipByHitCell(opponent.getFleet(), hitCell);
+			int hitCounter = 0;
+			for(Cell cell : ship.getHull()) {
+				if(cell.isHit()) hitCounter++;
+			}
+			if(hitCounter == ship.getHull().size()) {
+				return true;
+			} else {
+				return false;
 			}
 		}
 }

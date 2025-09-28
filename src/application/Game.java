@@ -38,27 +38,14 @@ class Game {
 	            }
 	        });
 		}
-
 		
 	    private boolean isWin() {
-	    	//debug
-	    	int shipsDestroyedBot = 0;
-	    	int shipsDestroyedHuman = 0;
-	    	for(Ship ship : bot.getFleet()) {
-	    		if(ship.isDestroyed()) shipsDestroyedBot++;
-	    	}
-	    	for(Ship ship : human.getFleet()) {
-	    		if(ship.isDestroyed()) shipsDestroyedHuman++;
-	    	}
-	    	System.out.println("Bot ships destroyed: " + shipsDestroyedBot);
-	    	System.out.println("Human ships destroyed: " + shipsDestroyedHuman);
-	    	//debug end
 	        return (!bot.getFleet().isEmpty() && bot.getFleet().stream().allMatch(Ship::isDestroyed))
 	            || (!human.getFleet().isEmpty() && human.getFleet().stream().allMatch(Ship::isDestroyed));
 	    }
 	    
 	     private void endGame()
 	     {
-	    	System.out.println("Win!"); 
+	    	 ViewController.deactivateShotGrid(); 
 	     }
 }

@@ -21,7 +21,7 @@ class UtilsTest {
 		
 		for (int i = 0; i < 100; i++) {
 			randCell = Utils.randomCellSelector(grid,  cellFilter);
-			assertTrue((randCell.getCol() >= 0 && randCell.getCol() <= 9) && (randCell.getRow() >= 0 && randCell.getRow() <=9));
+			assertTrue((randCell.getCol() >= 0 && randCell.getCol() <= 9) && (randCell.getRow() >= 0 && randCell.getRow() <= 9));
 			System.out.println(randCell.getCol() + ", " + randCell.getRow());
 		}
 		
