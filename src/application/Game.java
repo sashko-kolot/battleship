@@ -1,8 +1,10 @@
 package application;
 
 import javafx.application.Platform;
+import javafx.scene.paint.Color;
 
 class Game {
+	public volatile boolean running = true;
 	private PlayerBot bot  = new PlayerBot();
 	private PlayerHuman human =  new PlayerHuman();
 	private Player currentPlayer;
@@ -18,8 +20,12 @@ class Game {
 		
 		});
 	}
-		
+		public void stop() {
+			running = false;
+		}
 		private void nextTurn() {
+			if(!running) return;
+			
 		    if (isWin()) {
 		        endGame();
 		        return;
@@ -44,8 +50,18 @@ class Game {
 	            || (!human.getFleet().isEmpty() && human.getFleet().stream().allMatch(Ship::isDestroyed));
 	    }
 	    
-	     private void endGame()
-	     {
-	    	 ViewController.deactivateShotGrid(); 
+	    private boolean humanWins() {
+	    	return bot.getFleet().stream().allMatch(Ship::isDestroyed)
+	    	           && human.getFleet().stream().anyMatch(ship -> !ship.isDestroyed());
+	    }
+	    
+	     private void endGame(){
+	    	 if(humanWins()) {
+	    		 ViewController.setMessage("Victory!", Color.GREEN);
+		     } else {
+		    	 ViewController.setMessage("Defeat!", Color.RED);
+		     	}
+	    	 ViewController.setMessageVisibility(true);
+	    	 ViewController.deactivateShotGrid();
 	     }
 }

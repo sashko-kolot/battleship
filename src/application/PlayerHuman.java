@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import javafx.application.Platform;
+import javafx.scene.paint.Color;
 
 class PlayerHuman extends Player {
 	
@@ -116,11 +117,12 @@ class PlayerHuman extends Player {
 
 	        placeNextShip(opponent, index + 1, onComplete);
 	    });
-		
 	}
 	
 	@Override
 	public void shoot(Player opponent, Consumer<Boolean> resultCallback) {
+		ViewController.setMessage("Your turn, Admiral!", Color.GREEN);
+		ViewController.setMessageVisibility(true);
 		ViewController.setClickListener(clickData -> {
 			Cell clickedCell = Utils.getCellByCoords(getShotGrid(), clickData.getCol(), clickData.getRow());
 			
@@ -149,7 +151,8 @@ class PlayerHuman extends Player {
 			 clickedCell.setHiddenFalse();
 			 Platform.runLater(() -> {ViewController.updateShotGridPane(getShotGrid());});
 			 boolean hit = clickedCell.isHit();
-			 //System.out.println("DEBUG: Callback hit = " + hit);//debug
+			 ViewController.setClickListener(null);
+			 ViewController.setMessageVisibility(false);
 			 resultCallback.accept(hit);
 		});
 	}

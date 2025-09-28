@@ -6,6 +6,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
@@ -222,5 +223,14 @@ final class ViewController {
 	    		}
     		}
     	}
+    }
+    
+    public static void setMessage(String text, Paint color) {
+    	view.getMessage().setText(text);
+    	view.getMessage().setTextFill(color);
+    }
+    
+    public static void setMessageVisibility(boolean visibility) {
+    	view.getMessage().setVisible(visibility);
     }
 }

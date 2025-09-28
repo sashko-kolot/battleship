@@ -2,7 +2,8 @@ package application;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import javafx.application.Platform;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 class PlayerBot extends Player {
 	
@@ -145,7 +146,12 @@ class PlayerBot extends Player {
 			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setMissTrue();
 			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
 			}
-		Platform.runLater(()-> ViewController.updateShipGridPane(opponent.getShipGrid()));
-		resultCallback.accept(hit);
+		
+		
+			PauseTransition pause = new PauseTransition(Duration.seconds(1));
+			pause.setOnFinished(e ->{ViewController.updateShipGridPane(opponent.getShipGrid());
+			resultCallback.accept(hit);
+		});
+			pause.play();
 	}
 }
