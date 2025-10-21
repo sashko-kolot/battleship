@@ -122,7 +122,7 @@ class PlayerBot extends Player {
 					 target = Utils.shootNewTargetWithOneHitCell(getShotGrid(), hitCells.get(0));
 				 	}
 		} else {
-			target = Utils.shootNewTarget(getShotGrid(), Utils.getPossibleTargets(getShotGrid()));
+			target = Utils.shootNewTarget(getShotGrid(), Utils.getPossibleTargetsNew(getShotGrid(), opponent.getFleet()));
 		}
 		boolean hit = target.isHit();
 		if(target.isHit()) {

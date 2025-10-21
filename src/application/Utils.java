@@ -2,7 +2,9 @@ package application;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 final class Utils {
 	
@@ -522,19 +524,6 @@ final class Utils {
 				}
 			}
 		}
-	
-		/*public static boolean isFirstHit(Player opponent, Cell hitCell) {
-			Ship ship = Utils.getDamagedShipByHitCell(opponent.getFleet(), hitCell);
-			int hitCounter = 0;
-			for(Cell cell : ship.getHull()) {
-				if(cell.isHit()) hitCounter++;
-			}
-			if(hitCounter == 1) {
-				return true;
-			} else {
-				return false;
-			}
-		}*/
 		
 		public static boolean isLastHit(Player opponent, Cell hitCell) {
 			Ship ship = Utils.getDamagedShipByHitCell(opponent.getFleet(), hitCell);
@@ -547,5 +536,79 @@ final class Utils {
 			} else {
 				return false;
 			}
+		}
+		
+		public static ArrayList<Cell> getPossibleTargetsNew(Grid grid, ArrayList<Ship> fleet) {
+			ArrayList<Cell> possibleTargets = new ArrayList<Cell>();
+			ArrayList<Cell> currentRowCol = new ArrayList<Cell>();
+			ArrayList<Cell> temp = new ArrayList<Cell>();
+			int maxShipSize;
+			int currentRowColNum = 0;
+			//Find maxShipSize
+			List<Integer>shipSizes = new ArrayList<>();
+			for(Ship ship : fleet) {
+				if(!ship.isDestroyed()) shipSizes.add(ship.getHull().size());
+			}
+			
+			maxShipSize = shipSizes.stream().max(Comparator.naturalOrder()).get();
+			
+			//Analyze rows
+			do{
+			//Get current row
+			for(Cell cell : grid.getGrid()) {
+				if(cell.getRow() == currentRowColNum) {
+					currentRowCol.add(cell);
+				}
+			}
+			currentRowColNum++;
+			
+			//Analyze current row
+			for(Cell cell : currentRowCol) {
+				if(cell.isHidden()) {
+					temp.add(cell);
+				} else {
+					if(temp.size() >= maxShipSize) {
+						possibleTargets.addAll(temp);
+					}
+					temp.clear();
+				}
+			}
+			if(temp.size() >= maxShipSize) {
+			possibleTargets.addAll(temp);
+			}
+			temp.clear();
+			currentRowCol.clear();
+			} while(currentRowColNum < 10);
+			
+			currentRowColNum = 0;
+			//Analyze columns
+			do{
+				//Get current column
+				for(Cell cell : grid.getGrid()) {
+					if(cell.getCol() == currentRowColNum) {
+						currentRowCol.add(cell);
+					}
+				}
+				currentRowColNum++;
+				
+				//Analyze current column
+				for(Cell cell : currentRowCol) {
+					if(cell.isHidden()) {
+						temp.add(cell);
+					} else {
+						if(temp.size() >= maxShipSize) {
+							possibleTargets.addAll(temp);
+						}
+						temp.clear();
+					}
+				}
+				if(temp.size() >= maxShipSize) {
+				possibleTargets.addAll(temp);
+				}
+				temp.clear();
+				currentRowCol.clear();
+				} while(currentRowColNum < 10);
+			
+			return possibleTargets;
 		}
 }
