@@ -247,26 +247,30 @@ final class Utils {
 	public static Cell shootNewTargetWithOneHitCell(Grid grid, Cell hitCell) {
 		ArrayList<Cell> possibleTargets = new ArrayList<>();
 		Cell cell = new Cell();
+		if(Utils.cellExists(hitCell.getCol() + 1, hitCell.getRow())) {
 		cell = getCellByCoords(grid, hitCell.getCol() + 1, hitCell.getRow());
-		if(cell.isHidden()) {
-			possibleTargets.add(cell);
+			if(cell.isHidden()) {
+				possibleTargets.add(cell);
+			}
 		}
-		
+		if(Utils.cellExists(hitCell.getCol() - 1, hitCell.getRow())) {
 		cell = getCellByCoords(grid, hitCell.getCol() - 1, hitCell.getRow());
-		if(cell.isHidden()) {
-			possibleTargets.add(cell);
+			if(cell.isHidden()) {
+				possibleTargets.add(cell);
+			}
 		}
-		
+		if(Utils.cellExists(hitCell.getCol(), hitCell.getRow() + 1)) {
 		cell = getCellByCoords(grid, hitCell.getCol(), hitCell.getRow() + 1);
-		if(cell.isHidden()) {
-			possibleTargets.add(cell);
+			if(cell.isHidden()) {
+				possibleTargets.add(cell);
+			}
 		}
-		
+		if(Utils.cellExists(hitCell.getCol(), hitCell.getRow()  - 1)) {
 		cell = getCellByCoords(grid, hitCell.getCol(), hitCell.getRow()  - 1);
-		if(cell.isHidden()) {
-			possibleTargets.add(cell);
+			if(cell.isHidden()) {
+				possibleTargets.add(cell);
+			}
 		}
-		
 		if(possibleTargets.size() > 1) {
 		cell = possibleTargets.get(generateRandomInt(0, possibleTargets.size() - 1));
 		updateTargetCell(grid, cell);
@@ -277,50 +281,6 @@ final class Utils {
 		updateTargetCell(grid, cell);
 		
 		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
-	}
-	
-	public static ArrayList<Cell> getPossibleTargets(Grid grid) {
-		ArrayList<Cell> targetZone1 = new ArrayList<>();
-		ArrayList<Cell> targetZone2 = new ArrayList<>();
-		ArrayList<Cell> targetZone3 = new ArrayList<>();
-		ArrayList<Cell> targetZone4 = new ArrayList<>();;
-		
-		for(Cell cell : grid.getGrid()) {
-			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 0 && cell.getRow() <= 4) && cell.isHidden()) {
-				targetZone1.add(cell);
-			}
-			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 0 && cell.getRow() <= 4) && cell.isHidden()) {
-				targetZone2.add(cell);
-			}
-			if((cell.getCol() >= 0 && cell.getCol() <= 4) && (cell.getRow() >= 5 && cell.getRow() <= 9) && cell.isHidden()) {
-				targetZone3.add(cell);
-			}
-			if((cell.getCol() >= 5 && cell.getCol() <= 9) && (cell.getRow() >= 5 && cell.getRow() <= 9) && cell.isHidden()) {
-				targetZone4.add(cell);
-			}
-		}
-		
-		HashMap<String, ArrayList<Cell>> targetZones = new HashMap<>();
-		targetZones.put("tz1", targetZone1);
-		targetZones.put("tz2", targetZone2);
-		targetZones.put("tz3", targetZone3);
-		targetZones.put("tz4", targetZone4);
-		
-		int[] targetZoneSizes = {targetZone1.size(), targetZone2.size(), targetZone3.size(), targetZone4.size()};
-		int maxTargetZone = Arrays.stream(targetZoneSizes).max().getAsInt();
-		
-		
-		ArrayList<String> maxKeys = new ArrayList<>();
-		for (HashMap.Entry<String, ArrayList<Cell>> entry : targetZones.entrySet()) {
-			if(entry.getValue().size() == maxTargetZone) {
-				maxKeys.add(entry.getKey());
-			}
-		}
-		if(maxKeys.size() > 1) {
-			int targetZoneIndex = generateRandomInt(0, maxKeys.size() -1);
-			return targetZones.get(maxKeys.get(targetZoneIndex));
-		}
-		return targetZones.get(maxKeys.get(0));
 	}
 	
 	public static ArrayList<Cell> getHitCells(Ship ship) {
@@ -538,7 +498,7 @@ final class Utils {
 			}
 		}
 		
-		public static ArrayList<Cell> getPossibleTargetsNew(Grid grid, ArrayList<Ship> fleet) {
+		public static ArrayList<Cell> getPossibleTargets(Grid grid, ArrayList<Ship> fleet) {
 			ArrayList<Cell> possibleTargets = new ArrayList<Cell>();
 			ArrayList<Cell> currentRowCol = new ArrayList<Cell>();
 			ArrayList<Cell> temp = new ArrayList<Cell>();
