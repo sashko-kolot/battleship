@@ -3,7 +3,7 @@ package application;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
 
 final class Utils {
@@ -244,43 +244,120 @@ final class Utils {
 		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
 	}
 	
-	public static Cell shootNewTargetWithOneHitCell(Grid grid, Cell hitCell) {
+	public static Cell shootNewTargetWithOneHitCell(Grid grid, Cell hitCell, ArrayList<Ship>fleet) {
+		Cell selectedCell;
+		Cell startingPointR = new Cell();
+		Cell startingPointC = new Cell();
+		ArrayList<Cell> hitCellRow = new ArrayList<>();
+		ArrayList<Cell> hitCellCol = new ArrayList<>();
+		ArrayList<Integer> currentShipSizes = new ArrayList<>();
 		ArrayList<Cell> possibleTargets = new ArrayList<>();
-		Cell cell = new Cell();
-		if(Utils.cellExists(hitCell.getCol() + 1, hitCell.getRow())) {
-		cell = getCellByCoords(grid, hitCell.getCol() + 1, hitCell.getRow());
-			if(cell.isHidden()) {
-				possibleTargets.add(cell);
-			}
-		}
-		if(Utils.cellExists(hitCell.getCol() - 1, hitCell.getRow())) {
-		cell = getCellByCoords(grid, hitCell.getCol() - 1, hitCell.getRow());
-			if(cell.isHidden()) {
-				possibleTargets.add(cell);
-			}
-		}
-		if(Utils.cellExists(hitCell.getCol(), hitCell.getRow() + 1)) {
-		cell = getCellByCoords(grid, hitCell.getCol(), hitCell.getRow() + 1);
-			if(cell.isHidden()) {
-				possibleTargets.add(cell);
-			}
-		}
-		if(Utils.cellExists(hitCell.getCol(), hitCell.getRow()  - 1)) {
-		cell = getCellByCoords(grid, hitCell.getCol(), hitCell.getRow()  - 1);
-			if(cell.isHidden()) {
-				possibleTargets.add(cell);
-			}
-		}
-		if(possibleTargets.size() > 1) {
-		cell = possibleTargets.get(generateRandomInt(0, possibleTargets.size() - 1));
-		updateTargetCell(grid, cell);
-		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
-		} else {
-			cell = possibleTargets.get(0);
-		}
-		updateTargetCell(grid, cell);
+		int left = 0;
+		int right = 0;
+		int up = 0;
+		int down = 0;
 		
-		return Utils.getCellByCoords(grid, cell.getCol(), cell.getRow());
+		for(Cell cell : grid.getGrid()) {
+			if(cell.getRow() == hitCell.getRow()) {
+				hitCellRow.add(cell);
+			}
+		}
+		
+		for(Cell cell : grid.getGrid()) {
+			if(cell.getCol() == hitCell.getCol()) {
+				hitCellCol.add(cell);
+			}
+		}
+		
+		for(Ship ship : fleet) {
+			currentShipSizes.add(ship.getHull().size());
+		}
+		
+		for(Cell cell : hitCellRow) {
+			if(cell.getCol() == hitCell.getCol() && cell.getRow() == hitCell.getRow()) {
+				startingPointR = cell;
+			}
+		}
+		
+		if((hitCellRow.indexOf(startingPointR) != (hitCellRow.size() - 1)) || (hitCellRow.indexOf(startingPointR) == 0)) {
+			for(int i = (hitCellRow.indexOf(startingPointR) + 1); i < hitCellRow.size(); i++) {
+				if(hitCellRow.get(i).isHidden()) {
+					right++;
+				} else {
+					break;
+				}
+			}
+		}
+		
+		if((hitCellRow.indexOf(startingPointR) != 0) || (hitCellRow.indexOf(startingPointR) == (hitCellRow.size() - 1))) {
+			for(int i = (hitCellRow.indexOf(startingPointR) - 1); i >= 0; i--) {
+				if(hitCellRow.get(i).isHidden()) {
+					left++;
+				} else {
+					break;
+				}
+			}
+		}
+		
+		for(Cell cell : hitCellCol) {
+			if(cell.getCol() == hitCell.getCol() && cell.getRow() == hitCell.getRow()) {
+				startingPointC = cell;
+			}
+		}
+		
+		if((hitCellCol.indexOf(startingPointC) != (hitCellCol.size() - 1)) || (hitCellCol.indexOf(startingPointC) == 0)) {
+			for(int i = (hitCellCol.indexOf(startingPointC) + 1); i < hitCellCol.size(); i++) {
+				if(hitCellCol.get(i).isHidden()) {
+					down++;
+				} else {
+					break;
+				}
+			}
+		}
+		
+		if((hitCellCol.indexOf(startingPointC) != 0) || (hitCellCol.indexOf(startingPointC) == (hitCellCol.size() - 1))) {
+			for(int i = (hitCellCol.indexOf(startingPointC) - 1); i >= 0; i--) {
+				if(hitCellCol.get(i).isHidden() ) {
+					up++;
+				} else {
+					break;
+				}
+			}
+		}
+		
+		if(shipSizeMatch((left + right + 1), currentShipSizes)) {
+			if(left > 0) {
+				possibleTargets.add(hitCellRow.get((hitCellRow.indexOf(startingPointR) - 1)));
+			}
+			if(right > 0) {
+				possibleTargets.add(hitCellRow.get((hitCellRow.indexOf(startingPointR) + 1)));
+			}
+		}
+		
+		if(shipSizeMatch((up + down + 1), currentShipSizes)) {
+			if(up > 0) {
+				possibleTargets.add(hitCellCol.get((hitCellCol.indexOf(startingPointC) - 1)));
+			}
+			if(down > 0) {
+				possibleTargets.add(hitCellCol.get((hitCellCol.indexOf(startingPointC) + 1)));
+			}
+		}
+		if(possibleTargets.size() == 1) {
+			selectedCell = possibleTargets.get(0);
+		} else {
+			selectedCell = possibleTargets.get(generateRandomInt(0, possibleTargets.size() - 1));
+			}
+		updateTargetCell(grid, selectedCell);
+		return getCellByCoords(grid, selectedCell.getCol(), selectedCell.getRow());
+	}
+	
+	public static boolean shipSizeMatch(int space, ArrayList<Integer> currentShipSizes) {
+		for(int i : currentShipSizes) {
+			if(space >= i) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public static ArrayList<Cell> getHitCells(Ship ship) {

@@ -119,7 +119,7 @@ class PlayerBot extends Player {
 				 if(hitCells.size() > 1) {
 					 target = Utils.destroyCurrentTarget(getShotGrid(), hitCells, Utils.isDamagedShipVertical(hitCells)); 
 				 } else {
-					 target = Utils.shootNewTargetWithOneHitCell(getShotGrid(), hitCells.get(0));
+					 target = Utils.shootNewTargetWithOneHitCell(getShotGrid(), hitCells.get(0), opponent.getFleet());
 				 	}
 		} else {
 			target = Utils.shootNewTarget(getShotGrid(), Utils.getPossibleTargets(getShotGrid(), opponent.getFleet()));
