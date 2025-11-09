@@ -2,8 +2,6 @@ package application;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
 
 class PlayerBot extends Player {
 	
@@ -35,7 +33,7 @@ class PlayerBot extends Player {
 	
 		do {
 		stern = Utils.randomCellSelector(grid, cellFilter);
-		direction = Utils.selectRandomDirection(Utils.getShipDirections(grid, stern.getCol(), stern.getRow(), shipSize));
+		direction = Utils.selectRandomDirection(Utils.getShipDirections(grid, stern.getRow(), stern.getCol(), shipSize));
 		} while (direction == null);
 	
 		stern.setShipTrue();
@@ -50,34 +48,33 @@ class PlayerBot extends Player {
 		if(stern.getCol() == prow.getCol()) {
 			if(stern.getRow() > prow.getRow()) {
 				for(int i = prow.getRow() + 1; i < stern.getRow(); i++) {
-					Utils.getCellByCoords(grid, prow.getCol(), i).setShipTrue();
-					Utils.getCellByCoords(grid, prow.getCol(), i).setBlockedTrue();
-					ship.getHull().add(Utils.getCellByCoords(grid, prow.getCol(), i));
+					Utils.getCellByCoords(grid, i, prow.getCol()).setShipTrue();
+					Utils.getCellByCoords(grid, i, prow.getCol()).setBlockedTrue();
+					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getCol()));
 				} 		
 			} else {
 				for (int i = prow.getRow() - 1; i > stern.getRow(); i--) {
-					Utils.getCellByCoords(grid, prow.getCol(), i).setShipTrue();
-					Utils.getCellByCoords(grid, prow.getCol(), i).setBlockedTrue();
-					ship.getHull().add(Utils.getCellByCoords(grid, prow.getCol(), i));
+					Utils.getCellByCoords(grid, i, prow.getCol()).setShipTrue();
+					Utils.getCellByCoords(grid, i, prow.getCol()).setBlockedTrue();
+					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getCol()));
 				}
 			}
 		} else {
 			if(stern.getCol() > prow.getCol()) {
 				for(int i = prow.getCol() + 1; i < stern.getCol(); i++) {
-					Utils.getCellByCoords(grid, i, prow.getRow()).setShipTrue();
-					Utils.getCellByCoords(grid, i, prow.getRow()).setBlockedTrue();
-					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getRow()));
+					Utils.getCellByCoords(grid, prow.getRow(), i).setShipTrue();
+					Utils.getCellByCoords(grid, prow.getRow(), i).setBlockedTrue();
+					ship.getHull().add(Utils.getCellByCoords(grid, prow.getRow(), i));
 				}
 			} else {
 				for(int i = prow.getCol() - 1; i > stern.getCol(); i--) {
-					Utils.getCellByCoords(grid, i, prow.getRow()).setShipTrue();
-					Utils.getCellByCoords(grid, i, prow.getRow()).setBlockedTrue();
-					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getRow()));
+					Utils.getCellByCoords(grid, prow.getRow(), i).setShipTrue();
+					Utils.getCellByCoords(grid, prow.getRow(), i).setBlockedTrue();
+					ship.getHull().add(Utils.getCellByCoords(grid, prow.getRow(), i));
 				}
 			}
 		}
 		ship.setHitPointCounter(ship.getHull().size());
-		
 		return ship;
 	}
 	
@@ -126,8 +123,8 @@ class PlayerBot extends Player {
 		}
 		boolean hit = target.isHit();
 		if(target.isHit()) {
-			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHitTrue();
-			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getRow(), target.getCol()).setHitTrue();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getRow(), target.getCol()).setHiddenFalse();
 			if(damagedShip.getHull().size() == 0) {
 				damagedShip = Utils.getDamagedShipByHitCell(opponent.getFleet(), target);
 				damagedShip.setDamaged(true);
@@ -143,15 +140,12 @@ class PlayerBot extends Player {
 			}
 					
 		} else {
-			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setMissTrue();
-			Utils.getCellByCoords(opponent.getShipGrid(), target.getCol(), target.getRow()).setHiddenFalse();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getRow(), target.getCol()).setMissTrue();
+			Utils.getCellByCoords(opponent.getShipGrid(), target.getRow(), target.getCol()).setHiddenFalse();
 			}
-		
-		
-			PauseTransition pause = new PauseTransition(Duration.seconds(1));
-			pause.setOnFinished(e ->{ViewController.updateShipGridPane(opponent.getShipGrid());
+			
 			resultCallback.accept(hit);
-		});
-			pause.play();
-	}
+		};
+			
+	
 }

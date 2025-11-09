@@ -1,20 +1,21 @@
 package application;
 
 class Cell {
-	private int col;
 	private int row;
+	private int col;
 	private boolean ship = false;
 	private boolean hit = false;
 	private boolean miss = false;
 	private boolean blocked = false;
 	private boolean hidden = true;
+	private boolean direction = false;
 
 
 	Cell() {}
 	
-	Cell(int col, int row) {
-			this.col = col;
+	Cell(int row, int col) {
 			this.row = row;
+			this.col = col;
 		}
 
 // Getters
@@ -45,6 +46,10 @@ class Cell {
 	public boolean isHidden() {
 			return hidden;
 		}
+	
+	public boolean isDirection() {
+		return direction;
+	}
 		
 	public Cell getCell() {
 			return this;
@@ -70,4 +75,8 @@ class Cell {
 	public void setHiddenFalse() {
 			hidden = false;
 		}
+	
+	public void toggleDirection() {
+		direction = !direction;
+	}
 }

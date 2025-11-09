@@ -1,18 +1,24 @@
 package application;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Main extends Application{
-	public static Main instance;
+	private static Main instance;
 	private Stage primaryStage;
 	private View view;
+	private Timeline viewUpdate; 
 	private  Game game;
-	private Thread gameThread;
+	private final ExecutorService gameExecutor = Executors.newSingleThreadExecutor();
 	
-	public Main() {
-		instance = this;
-	}
+	public Main() {}
 	
 	public static Main getInstance() {
 		return instance;
@@ -20,17 +26,20 @@ public class Main extends Application{
 	
 	 @Override
 	public void start(Stage primaryStage) {
+		 instance = this;
 		 this.primaryStage = primaryStage;
-		 view = new View();
-		 ViewController.setView(view);
 		 game = new Game();
-		 
+		 view = new View(game);
+	
 		 primaryStage.setScene(view.getUI());
 		 primaryStage.setTitle("Battleship");
 		 primaryStage.show();
 		 
-		gameThread = new Thread(() -> game.playGame());
-		gameThread.start();
+		 viewUpdate = new Timeline(new KeyFrame(Duration.millis(50), e -> { game.getPlayer2().getShipGridView().drawGrid(); game.getPlayer2().getShotGridView().drawGrid();}));
+		 viewUpdate.setCycleCount(Animation.INDEFINITE);
+		 viewUpdate.play();
+		 
+		 gameExecutor.submit(()-> {game.playGame();});
 	 }	
 
 	public static void main(String[] args) {
@@ -38,24 +47,13 @@ public class Main extends Application{
 	}
 	
 	public void restartGame() {
-		if (gameThread != null && gameThread.isAlive()) {
-	        game.stop(); // 
-	        try {
-	            gameThread.join();
-	        } catch (InterruptedException e) {
-	            e.printStackTrace();
-	        }
-	    }
 		
-		view = new View();
-		ViewController.setView(view);
 		game = new Game();
+		view = new View(game);
 		 
 		 primaryStage.setScene(view.getUI());
 		 primaryStage.setTitle("Battleship");
 		 primaryStage.show();
-		 
-		 gameThread = new Thread(() -> game.playGame());
-		 gameThread.start();
+		 gameExecutor.submit(()-> {game.playGame();});
 	}
 }

@@ -1,10 +1,10 @@
 package application;
 
 class ClickData{
-	private int col;
 	private int row;
+	private int col;
 	
-	public ClickData(int col, int row) {
+	public ClickData(int row, int col) {
 		this.col = col;
 		this.row = row;
 	}

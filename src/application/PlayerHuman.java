@@ -3,32 +3,29 @@ package application;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 
 class PlayerHuman extends Player {
-	
 	
 	@Override
 	protected Ship placeShip(Grid grid, int shipSize) {return null;}
 	
 	// Overloaded
-	protected void placeShip(Grid grid, int shipSize, Consumer<Ship> callback) {
+	protected void placeShip(Grid grid, CanvasGridView shipGridView,int shipSize, Consumer<Ship> callback) {
 		Ship ship = new Ship();
 		AtomicReference<Cell> sternRef = new AtomicReference<>();
 		AtomicReference<ArrayList<Cell>> directionsRef = new AtomicReference<>();
-		ViewController.activateShipGrid();
-		ViewController.setClickListener(clickData -> {
-			Cell clickedCell = Utils.getCellByCoords(grid, clickData.getCol(), clickData.getRow());
+		shipGridView.setClickListener(clickData -> {
+			Cell clickedCell = Utils.getCellByCoords(grid, clickData.getRow(), clickData.getCol());
 			
 			if(sternRef.get() == null) {
 				if(!clickedCell.isBlocked()) {
 					sternRef.set(clickedCell);
-					ArrayList<Cell> directions = Utils.getShipDirections (grid, clickedCell.getCol(), clickedCell.getRow(), shipSize);
+					ArrayList<Cell> directions = Utils.getShipDirections (grid, clickedCell.getRow(), clickedCell.getCol(), shipSize);
 					directionsRef.set(directions);
-					
-					Platform.runLater(() -> {ViewController.showShipDirections(directions);});
+					for(Cell cell : directionsRef.get()) {
+						cell.toggleDirection();
+					}
 				}
 				
 				return;
@@ -51,53 +48,55 @@ class PlayerHuman extends Player {
 	            if(stern.getCol() == prow.getCol()) {
 	    			if(stern.getRow() > prow.getRow()) {
 	    				for(int i = prow.getRow() + 1; i < stern.getRow(); i++) {
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setShipTrue();
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setBlockedTrue();
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setHiddenFalse();
-	    					ship.getHull().add(Utils.getCellByCoords(grid, prow.getCol(), i));
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setShipTrue();
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setBlockedTrue();
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setHiddenFalse();
+	    					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getCol()));
 	    				} 		
 	    			} else {
 	    				for (int i = prow.getRow() - 1; i > stern.getRow(); i--) {
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setShipTrue();
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setBlockedTrue();
-	    					Utils.getCellByCoords(grid, prow.getCol(), i).setHiddenFalse();
-	    					ship.getHull().add(Utils.getCellByCoords(grid, prow.getCol(), i));
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setShipTrue();
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setBlockedTrue();
+	    					Utils.getCellByCoords(grid, i, prow.getCol()).setHiddenFalse();
+	    					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getCol()));
 	    				}
 	    			}
 	    		} else {
 	    			if(sternRef.get().getCol() > prow.getCol()) {
 	    				for(int i = prow.getCol() + 1; i < sternRef.get().getCol(); i++) {
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setShipTrue();
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setBlockedTrue();
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setHiddenFalse();
-	    					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getRow()));
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setShipTrue();
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setBlockedTrue();
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setHiddenFalse();
+	    					ship.getHull().add(Utils.getCellByCoords(grid, prow.getRow(), i));
 	    				}
 	    			} else {
 	    				for(int i = prow.getCol() - 1; i > stern.getCol(); i--) {
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setShipTrue();
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setBlockedTrue();
-	    					Utils.getCellByCoords(grid, i, prow.getRow()).setHiddenFalse();
-	    					ship.getHull().add(Utils.getCellByCoords(grid, i, prow.getRow()));
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setShipTrue();
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setBlockedTrue();
+	    					Utils.getCellByCoords(grid, prow.getRow(), i).setHiddenFalse();
+	    					ship.getHull().add(Utils.getCellByCoords(grid, prow.getRow(), i));
 	    				}
 	    			}
 	    		}
 	            ship.setHitPointCounter(ship.getHull().size());
+	            for(Cell cell : directionsRef.get()) {
+					cell.toggleDirection();
+				}
 	            callback.accept(ship);
-	            Platform.runLater(() -> {ViewController.hideShipDirections(directionsRef.get());});
 			}
 		});
 	}
 
 	@Override
 	public void setFleet(Player opponent, Runnable onComplete) {
+		getShipGrid().toggleActive();
 	    placeNextShip(opponent, 0, onComplete); 
 	}
 	
-	private void placeNextShip(Player opponent, int index,  Runnable onComplete) {
+	private void placeNextShip(Player opponent, int index, Runnable onComplete) {
 	    if (index >= 5) {
 	        Utils.updateOpponentShotGrid(getShipGrid(), opponent);
-	        ViewController.deactivateShipGrid();
-	        ViewController.activateShotGrid();
+	        getShipGrid().toggleActive();
 	        onComplete.run();
 	        return;
 	    }
@@ -110,10 +109,9 @@ class PlayerHuman extends Player {
 	        default -> throw new IllegalStateException("Unexpected index: " + index);
 	    };
 
-	    placeShip(getShipGrid(), shipSize, ship -> {
+	    placeShip(getShipGrid(), shipGridView, shipSize, ship -> {
 	        getFleet().add(ship);
 	        Utils.blockCells(getShipGrid(), ship);
-	        Platform.runLater(() -> {ViewController.updateShipGridPane(getShipGrid());});
 
 	        placeNextShip(opponent, index + 1, onComplete);
 	    });
@@ -121,18 +119,19 @@ class PlayerHuman extends Player {
 	
 	@Override
 	public void shoot(Player opponent, Consumer<Boolean> resultCallback) {
-		ViewController.setMessage("Your turn, Admiral!", Color.GREEN);
-		ViewController.setMessageVisibility(true);
-		ViewController.setClickListener(clickData -> {
-			Cell clickedCell = Utils.getCellByCoords(getShotGrid(), clickData.getCol(), clickData.getRow());
+		View.setMessage("Your turn, Admiral!", Color.GREEN);
+		View.setMessageVisibility(true);
+		getShotGrid().toggleActive();
+		shotGridView.setClickListener(clickData -> {
+			Cell clickedCell = Utils.getCellByCoords(getShotGrid(), clickData.getRow(), clickData.getCol());
 			
 			if(!clickedCell.isHidden()) return; 
 				
 			 if(clickedCell.isShip()) {
 				clickedCell.setHitTrue();
 				
-				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHitTrue();
-				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getRow(), clickedCell.getCol()).setHitTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getRow(), clickedCell.getCol()).setHiddenFalse();
 				Utils.excludeAdjacentCells(getShotGrid(), opponent, Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell),clickedCell);
 				if(!Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell).isDamaged()) {
 					Utils.getDamagedShipByHitCell(opponent.getFleet(), clickedCell).setDamaged(true);
@@ -145,14 +144,13 @@ class PlayerHuman extends Player {
 			}else {
 				clickedCell.setMissTrue();
 				clickedCell.setHiddenFalse();
-				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setMissTrue();
-				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getCol(), clickedCell.getRow()).setHiddenFalse();
+				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getRow(), clickedCell.getCol()).setMissTrue();
+				Utils.getCellByCoords(opponent.getShipGrid(), clickedCell.getRow(), clickedCell.getCol()).setHiddenFalse();
 				}
 			 clickedCell.setHiddenFalse();
-			 Platform.runLater(() -> {ViewController.updateShotGridPane(getShotGrid());});
 			 boolean hit = clickedCell.isHit();
-			 ViewController.setClickListener(null);
-			 ViewController.setMessageVisibility(false);
+			 View.setMessageVisibility(false);
+			 getShotGrid().toggleActive();
 			 resultCallback.accept(hit);
 		});
 	}

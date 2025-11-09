@@ -8,7 +8,6 @@ class GridTest {
 	@Test
 	void setGridTest() {
 		Grid grid = new Grid();
-		grid.setGrid();
 		int gridCellCount = 0;
 		
 	// Check grid size
@@ -20,7 +19,7 @@ class GridTest {
 					assertEquals(row, grid.getGrid().get(gridCellCount).getRow());
 					assertEquals(col, grid.getGrid().get(gridCellCount).getCol());
 					
-					System.out.println(col + " " + row);
+					System.out.println(col + " " + row + " " + gridCellCount);
 					
 					gridCellCount++;
 				}

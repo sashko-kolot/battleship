@@ -1,28 +1,37 @@
 package application;
 
-import java.util.ArrayList;
-
 class Grid {
-	private ArrayList<Cell> grid = new ArrayList<>();
+	private int width = 10;
+	private int height = 10;
+	private Cell[][] grid = new Cell[height][width];
+	private boolean active = false;
+	
 	public Grid() {
 		setGrid();
 	}
 	
 	
 // Getters
-	public ArrayList<Cell> getGrid() {
+	public Cell[][] getGrid() {
 		return grid;
 	}
 	
+	public boolean isActive() {
+		return active;
+	}
+	
 // Setters
-	public void setGrid() {
-		for (int row = 0; row < 10; row++) {
-			for (int col = 0; col < 10; col++) {
-				Cell cell = new Cell(col, row);
-	            grid.add(cell);
+	private void setGrid() {
+		for (int row = 0; row < height; row++) {
+			for (int col = 0; col < width; col++) {
+				grid[row][col]= new Cell(row, col);
 				}
 		}
 		
+	}
+	
+	public void toggleActive() {
+		active = !active;
 	}
 	
 }
